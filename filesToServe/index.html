@@ -1,0 +1,15 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="clientSide.js" async></script>
+    <script src="/socket.io/socket.io.js" async></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Chat Room</title>
+</head>
+<body>
+    <input type="text" id="message_input"/>
+    <button onclick="sendMessage()">send</button>
+    <div id="chatlog"></div>
+</body>
+</html>
