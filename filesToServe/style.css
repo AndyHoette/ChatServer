@@ -1,0 +1,40 @@
+body{
+	margin: 0;
+	font-family: Arial, sans-serif;
+}
+h3{
+	margin: 0;
+	text-align: center;
+}
+h1{
+	margin: 0;
+}
+#roomList{
+	height: 100%;
+	width: 20%;
+	float:left;
+	margin: 0;
+	border-right: 0.1rem solid;
+
+}
+#inputField{
+	position: absolute;
+	bottom: 5px;
+	height:auto;
+	width:auto;
+	float:left;
+}
+#chatlog{
+	height:90%;
+	width:75%;
+	float:left;
+	overflow-y:auto
+}
+#room{
+	float:left;
+	margin: .1em;
+}
+#website{
+	height:100%;
+	width:100%:
+}
