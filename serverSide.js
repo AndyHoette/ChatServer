@@ -9,7 +9,7 @@ const port = 3456;
 const file = "filesToServe/index.html";
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html, on port 3456:
 const server = http.createServer(function (req, resp) {
-let filename = path.join(__dirname, "filesToServe", url.parse(req.url).pathname);
+	let filename = path.join(__dirname, "filesToServe", url.parse(req.url).pathname);
 	if(url.parse(req.url).pathname=="/"){
 		filename = path.join(__dirname, "filesToServe", "/index.html");
 	}
@@ -25,7 +25,7 @@ let filename = path.join(__dirname, "filesToServe", url.parse(req.url).pathname)
 					resp.end();
 					return;
 				}
-				
+
 				// File exists and is readable
 				var mimetype = mime.getType(filename);
 				resp.writeHead(200, {
@@ -50,19 +50,31 @@ server.listen(port);
 
 // Import Socket.IO and pass our HTTP server object to it.
 const socketio = require("socket.io")(http, {
-    wsEngine: 'ws'
+	wsEngine: 'ws'
 });
+
+let usernameToIdMap = new Map();
 
 // Attach our Socket.IO server to our HTTP server to listen
 const io = socketio.listen(server);
 io.sockets.on("connection", function (socket) {
-    // This callback runs when a new Socket.IO connection is established.
+	// This callback runs when a new Socket.IO connection is established.
 
-    socket.on('message_to_server', function (data) {
-        // This callback runs when the server receives a new message from the client.
+	socket.on('message_to_server', function (data) {
+		// This callback runs when the server receives a new message from the client.
 
-        console.log("message: " + data["message"]); // log it to the Node.JS outpu:
-	console.log("socketId of user who sent that" + data["id"]);
-        io.sockets.emit("message_to_client", { message: data["message"], username: data["id"] }) // broadcast the message to other users
-    });
+		console.log("message: " + data["message"]); // log it to the Node.JS outpu:
+		console.log("socketId of user who sent that" + data["id"]);
+		io.sockets.emit("message_to_client", { message: data["message"], username: data["id"] }) // broadcast the message to other users
+	});
+	
+	socket.on('usernameRequest', function (data)) {
+		// This callback runs when the serve recieves a new username request
+		if(!usernameToIdMap.hasOwnProperty(data["username"])){
+			console.log("accepting new username: " + data["username"] + ". For user id: " + data["id"]);
+			usernameToIdMap.set(data["username"], data["id"]);
+		}else{
+			console.log("rejecting new username: " + data["username"]);
+		}
+	}
 });
