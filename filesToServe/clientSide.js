@@ -1,6 +1,13 @@
 let socketio = io.connect();
+socketio.on("connect", function(socket){
+	console.log("connected");
+	sessionStorage.setItem("room", 0);
+});
 socketio.on("message_to_client",function(data) {
 	//Append an HR thematic break and the escaped HTML of the new message
+	if(!data["success"] || data["room"] != sessionStorage.getItem("room")){
+		return;
+	}
 	document.getElementById("chatlog").appendChild(document.createElement("hr"));
 	let newMessage = document.createElement("p");
 	newMessage.appendChild(document.createTextNode(data["username"] + ": " + data["message"]));

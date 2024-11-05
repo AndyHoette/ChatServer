@@ -53,7 +53,7 @@ const socketio = require("socket.io")(http, {
 	wsEngine: 'ws'
 });
 
-let idToUsernameMap = new Map();
+let idToUsernameMap = {};
 
 // Attach our Socket.IO server to our HTTP server to listen
 const io = socketio.listen(server);
@@ -62,11 +62,14 @@ io.sockets.on("connection", function (socket) {
 
 	socket.on('message_to_server', function (data) {
 		// This callback runs when the server receives a new message from the client.
-
+		if(!idToUsernameMap.hasOwnProperty(data["id"])){
+			io.sockets.emit("message_to_client", {success: false});
+			return;
+		}
 		console.log("message: " + data["message"]); // log it to the Node.JS outpu:
 		console.log("socketId of user who sent that" + data["id"]);
 		console.log(idToUsernameMap);
-		io.sockets.emit("message_to_client", { message: data["message"], username: idToUsernameMap.get(data["id"]) }) // broadcast the message to other users
+		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0 }) // broadcast the message to other users
 	});
 	
 	socket.on('usernameRequest', function (data) {
@@ -75,7 +78,8 @@ io.sockets.on("connection", function (socket) {
 		console.log(Object.values(idToUsernameMap));
 		if(!Object.values(idToUsernameMap).includes(data["username"])){
 			console.log("accepting new username: " + data["username"] + ". For user id: " + data["id"]);
-			idToUsernameMap.set(data["id"], data["username"]);
+			console.log(idToUsernameMap);
+			idToUsernameMap[data["id"]] = data["username"];
 			io.sockets.emit("usernameRequestReturn", { success: true, username: data["username"]});
 		}else{
 			console.log("rejecting new username: " + data["username"]);
