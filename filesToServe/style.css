@@ -43,3 +43,11 @@ h1{
 	width:20%;
 	float:right;
 }
+#choosePFP{
+
+}
+#pfp1{
+}
+#choosePFP + #pfp1, #pfp1:hover{
+	display: block;
+}
