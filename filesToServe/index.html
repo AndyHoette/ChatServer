@@ -8,25 +8,35 @@
 	</head>
 	<body>
 		<div id="website">
-			<div id="roomList">
+			<div id="rooms">
 				<h3>List of Rooms to Join</h3>
 				<hr>
+				<div id="listOfRooms">
+
+				</div>
+				<div id="createRoom">
+					<label for="newRoomName">Name of New Room:</label>
+					<input type="text" id="newRoomName">
+					<label for="newRoomPassword">Optional Password</label>
+					<input type="text" id="newRoomPassword">
+					<button id="createNewRoomButton">Create Room</button>
+				</div>
 			</div>
 			<div id="room">
 				<h1 id="roomName">Welecome To the Home Page!</h1>
 				<div id="inputField">
 					<input type="text" id="message_input"/>
-					<button onclick="sendMessage()">Send</button>
+					<button id="sendMessageButton">Send</button>
 				</div>
 				<div id="chatlog"></div>
 			</div>
 			<div id="userBar">
 				<div id="beforeLogIn">
 					<input type="text" id="usernameInput"/>
-					<button onclick="requestUsername()">Create Account</button>
+					<button id="createAccountButton">Create Account</button>
 				</div>
 				<div id="afterLogIn">
-					<button onclick="logOut()">Log Out</button>
+					<button id="logOutButton">Log Out</button>
 					<select id="choosePFP">Choose PFP
 						<option value="turtle">Turtle</option>
 						<option value="octopus">Octopus</option>

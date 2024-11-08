@@ -3,6 +3,9 @@ let pfpSelector = document.getElementById("choosePFP");
 let chatLog = document.getElementById("chatlog");
 let inputField = document.getElementById("inputField");
 let roomName = document.getElementById("roomName");
+let logOutButton = document.getElementById("logOutButton");
+let createAccountButton = document.getElementById("createAccountButton");
+let sendMessageButton = document.getElementById("sendMessageButton");
 
 function clearChat(){
 	chatLog.innerHTML = "";
@@ -23,8 +26,13 @@ socketio.on("message_to_client",function(data) {
 	if(!data["success"] || data["room"] != sessionStorage.getItem("room")){
 		return;
 	}
-	document.getElementById("chatlog").appendChild(document.createElement("hr"));
-	let newMessage = document.createElement("p");
+	let newMessage = document.createElement("div");
+	newMessage.appendChild(document.createElement("hr"));
+	let pfpForMessage = document.createElement("img");
+	pfpForMessage.width = "30";
+	pfpForMessage.height = "30";
+	pfpForMessage.src = "profilePictures/" + data["pfp"] + ".png";
+	newMessage.appendChild(pfpForMessage);
 	newMessage.appendChild(document.createTextNode(data["username"] + ": " + data["message"]));
 	document.getElementById("chatlog").appendChild(newMessage);
 });
@@ -61,6 +69,7 @@ function loggedIn(){
 	document.getElementById("beforeLogIn").style.display = "none";
 	document.getElementById("afterLogIn").style.display = "block";
 	inputField.style.display = "block";
+	document.getElementById("createRoom").style.display = "block";
 }
 
 function loggedOut(){
@@ -68,6 +77,10 @@ function loggedOut(){
 	document.getElementById("afterLogIn").style.display = "none";
 	roomName.innerHTML = "Welecome to the Home Page!";
 	inputField.style.display = "none";
+	document.getElementById("usernameInput").value = "";
+	document.getElementById("newRoomName").value = "";
+	document.getElementById("newRoomPassword").value = "";
+	document.getElementById("createRoom").style.display = "none";
 	clearChat();
 }
 
@@ -76,3 +89,6 @@ function updatePFP(){
 	userPFP.src = "profilePictures/" + pfpSelector.value + ".png";
 }
 pfpSelector.addEventListener("change", updatePFP, false);
+logOutButton.addEventListener("click", loggedOut, false);
+createAccountButton.addEventListener("click", requestUsername, false);
+sendMessageButton.addEventListener("click", sendMessage, false);

@@ -9,13 +9,19 @@ h3{
 h1{
 	margin: 0;
 }
-#roomList{
+#rooms{
 	height: 100%;
 	width: 20%;
 	float:left;
 	margin: 0;
 	border-right: 0.1rem solid;
 
+}
+#listOfRooms{
+	height: 80%;
+	width: 100%;
+	overflow-y:auto;
+	float:left;
 }
 #inputField{
 	position: absolute;
