@@ -2,7 +2,6 @@
 	<head>
 		<meta charset="UTF-8">
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="clientSide.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="style.css">
 		<title>Chat Room</title>
@@ -14,7 +13,7 @@
 				<hr>
 			</div>
 			<div id="room">
-				<h1>Welecome To the Home Page!</h1>
+				<h1 id="roomName">Welecome To the Home Page!</h1>
 				<div id="inputField">
 					<input type="text" id="message_input"/>
 					<button onclick="sendMessage()">Send</button>
@@ -22,12 +21,22 @@
 				<div id="chatlog"></div>
 			</div>
 			<div id="userBar">
-				<input type="text" id="usernameInput"/>
-				<button onclick="requestUsername()">Create Account</button>
-				<button onclick="logOut()">Log Out</button>
-				<label id="choosePFP">Choose PFP</label>
-				<button>
+				<div id="beforeLogIn">
+					<input type="text" id="usernameInput"/>
+					<button onclick="requestUsername()">Create Account</button>
+				</div>
+				<div id="afterLogIn">
+					<button onclick="logOut()">Log Out</button>
+					<select id="choosePFP">Choose PFP
+						<option value="turtle">Turtle</option>
+						<option value="octopus">Octopus</option>
+						<option value="bison">Bison</option>
+						<option value="dolphin">Dolphin</option>
+					</select>
+					<img id="userPFP" src="profilePictures/turtle.png" width="80" height="80">
+				</div>
 			</div>
 		</div>
+		<script src="clientSide.js"></script>
 	</body>
 </html>

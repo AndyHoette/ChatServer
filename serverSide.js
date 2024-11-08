@@ -54,6 +54,7 @@ const socketio = require("socket.io")(http, {
 });
 
 let idToUsernameMap = {};
+let idToPfpMap = {};
 
 // Attach our Socket.IO server to our HTTP server to listen
 const io = socketio.listen(server);
@@ -69,7 +70,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("message: " + data["message"]); // log it to the Node.JS outpu:
 		console.log("socketId of user who sent that" + data["id"]);
 		console.log(idToUsernameMap);
-		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0 }) // broadcast the message to other users
+		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0, pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 	
 	socket.on('usernameRequest', function (data) {
@@ -80,10 +81,14 @@ io.sockets.on("connection", function (socket) {
 			console.log("accepting new username: " + data["username"] + ". For user id: " + data["id"]);
 			console.log(idToUsernameMap);
 			idToUsernameMap[data["id"]] = data["username"];
+			idToPfpMap[data["id"]] = "turtle";
 			io.sockets.emit("usernameRequestReturn", { success: true, username: data["username"]});
 		}else{
 			console.log("rejecting new username: " + data["username"]);
 			io.sockets.emit("usernameRequestReturn", { success: false});
 		}
+	});
+	socket.on('updatePFP', function(data) {
+		idToPfpMap[data["id"]] = data["pfp"];
 	});
 });

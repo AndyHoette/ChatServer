@@ -1,7 +1,22 @@
+let userPFP = document.getElementById("userPFP");
+let pfpSelector = document.getElementById("choosePFP");
+let chatLog = document.getElementById("chatlog");
+let inputField = document.getElementById("inputField");
+let roomName = document.getElementById("roomName");
+
+function clearChat(){
+	chatLog.innerHTML = "";
+}
+
+function newSession(){
+	sessionStorage.clear();
+	sessionStorage.setItem("room", 0);
+	loggedOut();
+}
+
 let socketio = io.connect();
 socketio.on("connect", function(socket){
-	console.log("connected");
-	sessionStorage.setItem("room", 0);
+	newSession();
 });
 socketio.on("message_to_client",function(data) {
 	//Append an HR thematic break and the escaped HTML of the new message
@@ -43,4 +58,21 @@ function requestUsername(){
 }
 
 function loggedIn(){
+	document.getElementById("beforeLogIn").style.display = "none";
+	document.getElementById("afterLogIn").style.display = "block";
+	inputField.style.display = "block";
 }
+
+function loggedOut(){
+	document.getElementById("beforeLogIn").style.display = "block";
+	document.getElementById("afterLogIn").style.display = "none";
+	roomName.innerHTML = "Welecome to the Home Page!";
+	inputField.style.display = "none";
+	clearChat();
+}
+
+function updatePFP(){
+	socketio.emit("updatePFP", {id:socketio.id, pfp: pfpSelector.value});
+	userPFP.src = "profilePictures/" + pfpSelector.value + ".png";
+}
+pfpSelector.addEventListener("change", updatePFP, false);
