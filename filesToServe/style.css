@@ -79,12 +79,12 @@ body {
     margin: 5px 0;
 }
 
-
-#choosePFP{
-
+.roomListing{
+	width: 100%;
+	border: 1px solid #cccccc;
+	padding: 0px;
+	margin: 0;
 }
-#pfp1{
-}
-#choosePFP + #pfp1, #pfp1:hover{
-	display: block;
+.joinRoomButton, .joinRoomPassword{
+	width:80%;
 }
