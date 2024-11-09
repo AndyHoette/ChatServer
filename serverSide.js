@@ -5,6 +5,20 @@ const http = require("http"),
 	mime = require("mime"),
 	path = require("path");
 
+class room{
+	constructor(owner, roomName, password){
+		this.admins = [owner];
+		this.hasPassword = password !== "";
+		if(password !== ""){
+			this.password = password;
+		}
+		this.bannedUsers = [];
+		this.name = roomName;
+		this.currentUsers = [];
+	}
+}
+
+
 const port = 3456;
 const file = "filesToServe/index.html";
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html, on port 3456:
@@ -52,15 +66,18 @@ server.listen(port);
 const socketio = require("socket.io")(http, {
 	wsEngine: 'ws'
 });
-
+let numberToRoomMap = {};
+let roomCounter = 0;
+let homeRoom = new room("", "the Home Page" ,"");
+numberToRoomMap[roomCounter] = homeRoom;
+roomCounter++;
 let idToUsernameMap = {};
 let idToPfpMap = {};
-
 // Attach our Socket.IO server to our HTTP server to listen
 const io = socketio.listen(server);
 io.sockets.on("connection", function (socket) {
 	// This callback runs when a new Socket.IO connection is established.
-
+	console.log(roomCounter);
 	socket.on('message_to_server', function (data) {
 		// This callback runs when the server receives a new message from the client.
 		if(!idToUsernameMap.hasOwnProperty(data["id"])){
@@ -72,7 +89,7 @@ io.sockets.on("connection", function (socket) {
 		console.log(idToUsernameMap);
 		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0, pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
-	
+
 	socket.on('usernameRequest', function (data) {
 		// This callback runs when the serve recieves a new username request
 		console.log(idToUsernameMap);
@@ -90,5 +107,33 @@ io.sockets.on("connection", function (socket) {
 	});
 	socket.on('updatePFP', function(data) {
 		idToPfpMap[data["id"]] = data["pfp"];
+	});
+	socket.on("listRooms", function(data) { //meant to be used when a user first logs in to get them caught up to speed
+		let myList = [];
+		for(let i = 1; i<roomCounter; i++){
+			myList[i] = {roomName: numberToRoomMap[i].name, needsPassword: numberToRoomMap[i].hasPassword};
+		}
+		io.sockets.emit("roomsListed", {listOfRooms: myList});
+	});
+	socket.on("createRoom", function(data) { //tells all users to update their list of rooms
+		let newRoom = new room(data["id"], data["roomName"], data["password"]);
+		numberToRoomMap[roomCounter] = newRoom;
+		io.sockets.emit("roomCreated", {roomName: data["roomName"], hasPassword: newRoom.hasPassword}); 
+		roomCounter++;
+	});
+	socket.on("requestToJoinRoom", function(data) {
+		let roomToJoin = numberToRoomMap[data["roomNumber"]];
+		if(roomToJoin.bannedUsers.includes(data["userId"])){
+			io.sockets.emit("joinedRoom", {success: false});
+			return;
+		}
+		if(roomToJoin.hasPassword){
+			if(roomToJoin.password != data["password"]){
+				io.sockets.emit("joinedRoom", {success: false});
+				return;
+			}
+		}
+		roomToJoin.currentUsers.push(data["userId"]);
+		io.sockets.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
 	});
 });

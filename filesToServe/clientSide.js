@@ -6,6 +6,9 @@ let roomName = document.getElementById("roomName");
 let logOutButton = document.getElementById("logOutButton");
 let createAccountButton = document.getElementById("createAccountButton");
 let sendMessageButton = document.getElementById("sendMessageButton");
+let createRoomButton = document.getElementById("createRoomButton");
+let newRoomPassword = document.getElementById("newRoomPassword");
+let newRoomName = document.getElementById("newRoomName");
 
 function clearChat(){
 	chatLog.innerHTML = "";
@@ -48,6 +51,12 @@ socketio.on("usernameRequestReturn", function(data) {
 	}
 });
 
+socketio.on("roomCreated", function(data) {
+	console.log("Create room with name: " + data["roomName"] + ". Needs Password? " + data["hasPassword"]);
+	newRoomPassword.value = "";
+	newRoomName.value = "";
+});
+
 function sendMessage(){
 	let msg = document.getElementById("message_input").value;
 	if(msg === ""){
@@ -88,6 +97,12 @@ function updatePFP(){
 	socketio.emit("updatePFP", {id:socketio.id, pfp: pfpSelector.value});
 	userPFP.src = "profilePictures/" + pfpSelector.value + ".png";
 }
+
+function createRoom(){
+	socketio.emit("createRoom", {id: socketio.id, roomName: newRoomName.value, password: newRoomPassword.value}); 
+}
+
+createRoomButton.addEventListener("click", createRoom, false);
 pfpSelector.addEventListener("change", updatePFP, false);
 logOutButton.addEventListener("click", loggedOut, false);
 createAccountButton.addEventListener("click", requestUsername, false);

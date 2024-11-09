@@ -53,6 +53,7 @@ body {
 }
 
 #message_input {
+    width: 70%;
     flex-grow: 1;
     padding: 10px;
     border: 1px solid #cccccc;
