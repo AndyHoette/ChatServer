@@ -1,52 +1,53 @@
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<script src="/socket.io/socket.io.js"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="style.css">
-		<title>Chat Room</title>
-	</head>
-	<body>
-		<div id="website">
-			<div id="rooms">
-				<h3>List of Rooms to Join</h3>
-				<hr>
-				<div id="listOfRooms">
+<head>
+    <meta charset="UTF-8">
+    <script src="/socket.io/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Chat Room</title>
+</head>
+<body>
+    <div id="website">
+        <div id="rooms">
+            <h3>List of Rooms to Join</h3>
+            <hr>
+            <div id="listOfRooms"></div>
+            <div id="createRoom">
+                <label for="newRoomName">Room Name:</label>
+                <input type="text" id="newRoomName" placeholder="Enter room name">
+                <label for="newRoomPassword">Password (Optional):</label>
+                <input type="text" id="newRoomPassword" placeholder="Enter password">
+                <button id="createNewRoomButton">Create Room</button>
+            </div>
+        </div>
 
-				</div>
-				<div id="createRoom">
-					<label for="newRoomName">Name of New Room:</label>
-					<input type="text" id="newRoomName">
-					<label for="newRoomPassword">Optional Password</label>
-					<input type="text" id="newRoomPassword">
-					<button id="createNewRoomButton">Create Room</button>
-				</div>
-			</div>
-			<div id="room">
-				<h1 id="roomName">Welecome To the Home Page!</h1>
-				<div id="inputField">
-					<input type="text" id="message_input"/>
-					<button id="sendMessageButton">Send</button>
-				</div>
-				<div id="chatlog"></div>
-			</div>
-			<div id="userBar">
-				<div id="beforeLogIn">
-					<input type="text" id="usernameInput"/>
-					<button id="createAccountButton">Create Account</button>
-				</div>
-				<div id="afterLogIn">
-					<button id="logOutButton">Log Out</button>
-					<select id="choosePFP">Choose PFP
-						<option value="turtle">Turtle</option>
-						<option value="octopus">Octopus</option>
-						<option value="bison">Bison</option>
-						<option value="dolphin">Dolphin</option>
-					</select>
-					<img id="userPFP" src="profilePictures/turtle.png" width="80" height="80">
-				</div>
-			</div>
-		</div>
-		<script src="clientSide.js"></script>
-	</body>
+        <div id="room">
+            <h1 id="roomName">Welcome to the Chat Room!</h1>
+            <div id="chatlog"></div>
+            <div id="inputField">
+                <input type="text" id="message_input" placeholder="Type your message...">
+                <button id="sendMessageButton">Send</button>
+            </div>
+        </div>
+
+        <div id="userBar">
+            <div id="beforeLogIn">
+                <input type="text" id="usernameInput" placeholder="Enter username">
+                <button id="createAccountButton">Create Account</button>
+            </div>
+            <div id="afterLogIn" style="display: none;">
+                <button id="logOutButton">Log Out</button>
+                <select id="choosePFP">
+                    <option value="turtle">Turtle</option>
+                    <option value="octopus">Octopus</option>
+                    <option value="bison">Bison</option>
+                    <option value="dolphin">Dolphin</option>
+                </select>
+		<img id="userPFP" src="profilePictures/turtle.png" width="80" height="80">
+            </div>
+        </div>
+    </div>
+    <script src="clientSide.js"></script>
+</body>
 </html>

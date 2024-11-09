@@ -1,54 +1,84 @@
-body{
-	margin: 0;
-	font-family: Arial, sans-serif;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
-h3{
-	margin: 0;
-	text-align: center;
-}
-h1{
-	margin: 0;
-}
-#rooms{
-	height: 100%;
-	width: 20%;
-	float:left;
-	margin: 0;
-	border-right: 0.1rem solid;
 
+#website {
+    display: flex;
+    height: 100vh;
+    width: 100%;
 }
-#listOfRooms{
-	height: 80%;
-	width: 100%;
-	overflow-y:auto;
-	float:left;
+
+#rooms {
+    width: 20%;
+    padding: 20px;
+    box-sizing: border-box;
+    border-right: 1px solid #cccccc;
 }
-#inputField{
-	position: absolute;
-	bottom: 5px;
-	height:auto;
-	width:auto;
-	float:left;
+
+#listOfRooms {
+    height: 60%;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    margin-bottom: 15px;
 }
-#chatlog{
-	height:90%;
-	width:55%;
-	float:left;
-	overflow-y:auto
+
+#createRoom label,
+#createRoom input,
+#createNewRoomButton {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
 }
-#room{
-	float:left;
-	margin: .1em;
+
+#room {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
-#website{
-	height:100%;
-	width:100%:
+
+#chatlog {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    margin-bottom: 15px;
 }
-#userBar{
-	height:90%;
-	width:20%;
-	float:right;
+
+#inputField {
+    display: flex;
+    gap: 10px;
 }
+
+#message_input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #cccccc;
+}
+
+#userBar {
+    width: 20%;
+    padding: 20px;
+    box-sizing: border-box;
+    border-left: 1px solid #cccccc;
+}
+
+#beforeLogIn, #afterLogIn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#usernameInput, #choosePFP, #createAccountButton, #logOutButton {
+    width: 80%;
+    padding: 8px;
+    margin: 5px 0;
+}
+
+
 #choosePFP{
 
 }
