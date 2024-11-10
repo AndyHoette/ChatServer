@@ -79,7 +79,7 @@ socketio.on("kicked", function(data){
 });
 
 socketio.on("directMessage", function(data){
-	socketio.emit("requestToJoinRoom", {roomNumber: data["roomToJoin"], password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
+	socketio.emit("requestToJoinRoom", {roomNumber: data["roomNumber"], password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 });
 
 socketio.on("roomCreated", function(data) {
@@ -164,22 +164,22 @@ function joinRoom(buttonThatWasClicked){
 
 function requestKick(buttonThatWasClicked){
 	userToKick = buttonThatWasClicked.value;
-	socketio.emit("requestToKickUser", {"user": userToKick});
+	socketio.emit("requestToKickUser", {"user": userToKick, "room":sessionStorage.getItem("room")});
 }
 
 function requestBan(buttonThatWasClicked){
 	userToBan = buttonThatWasClicked.value;
-	socketio.emit("requestToBanUser", {"user": userToBan});
+	socketio.emit("requestToBanUser", {"user": userToBan, "room":sessionStorage.getItem("room")});
 }
 
 function requestAdmin(buttonThatWasClicked){
 	userToAdmin = buttonThatWasClicked.value;
-	socketio.emit("requestToAdminUser", {"user": userToAdmin});
+	socketio.emit("requestToAdminUser", {"user": userToAdmin, "room":sessionStorage.getItem("room")});
 }
 
 function requestDM(buttonThatWasClicked){
 	userToDM = buttonThatWasClicked.value;
-	socketio.emit("requestToDM", {"user", userToDM});
+	socketio.emit("requestToDM", {"user": userToDM, "room":sessionStorage.getItem("room")});
 }
 
 createRoomButton.addEventListener("click", createRoom, false);

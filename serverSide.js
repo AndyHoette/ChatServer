@@ -168,13 +168,12 @@ io.sockets.on("connection", function (socket) {
 			return;
 		}
 		numberToRoomMap[data["room"]].admins.push(data["user"]);
-		io.to(data["user"]).emit("kicked", {});
 	});
 	socket.on("requestToDM", function(data){ //requires user
 		let newRoom = new room(socket.id, "Personal DM", "");
 		numberToRoomMap[dmCounter+dmConstant] = newRoom;
 		socket.emit("forceJoin", {roomNumber: dmCounter+dmConstant});
-		io.to(data["user"]).emit("forceJoin", {roomNUmber: dmCounter+dmConstant});
+		io.to(data["user"]).emit("forceJoin", {"roomNumber": dmCounter+dmConstant});
 		dmCounter++;
 	});
 });
