@@ -68,18 +68,23 @@ const socketio = require("socket.io")(http, {
 });
 let numberToRoomMap = {};
 let roomCounter = 0;
+let dmCounter = 0;
+const dmConstant = 1000000;
 let homeRoom = new room("", "Home Page" ,"");
 numberToRoomMap[roomCounter] = homeRoom;
 roomCounter++;
 let idToUsernameMap = {};
 let idToPfpMap = {};
+function hasAdmin(room, userId){
+	return numberToRoomMap[room].admins.includes(userId);
+}
 // Attach our Socket.IO server to our HTTP server to listen
 const io = socketio.listen(server);
 io.sockets.on("connection", function (socket) {
 	// This callback runs when a new Socket.IO connection is established.
 	//console.log(roomCounter);
 	socket.join("0");
-	socket.on('message_to_server', function (data) {
+	socket.on('message_to_server', function (data) { //requires id roomNumber and message
 		// This callback runs when the server receives a new message from the client.
 		if(!idToUsernameMap.hasOwnProperty(data["id"])){
 			io.sockets.emit("message_to_client", {success: false});
@@ -93,7 +98,7 @@ io.sockets.on("connection", function (socket) {
 		io.in(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 
-	socket.on('usernameRequest', function (data) {
+	socket.on('usernameRequest', function (data) { //requires id and username
 		// This callback runs when the serve recieves a new username request
 		//console.log(idToUsernameMap);
 		//console.log(Object.values(idToUsernameMap));
@@ -109,23 +114,23 @@ io.sockets.on("connection", function (socket) {
 			socket.emit("usernameRequestReturn", { success: false}); //io emit equiv socket.to(socketId) socket.to(roomName)
 		}
 	});
-	socket.on('updatePFP', function(data) {
+	socket.on('updatePFP', function(data) { //requires id and pfp
 		idToPfpMap[data["id"]] = data["pfp"];
 	});
-	socket.on("listRooms", function(data) { //meant to be used when a user first logs in to get them caught up to speed
+	socket.on("listRooms", function(data) { //meant to be used when a user first logs in to get them caught up to speed requires nothing
 		let myList = [];
 		for(let i = 1; i<roomCounter; i++){
 			myList[i] = {roomName: numberToRoomMap[i].name, needsPassword: numberToRoomMap[i].hasPassword};
 		}
 		socket.emit("roomsListed", {listOfRooms: myList});
 	});
-	socket.on("createRoom", function(data) { //tells all users to update their list of rooms
+	socket.on("createRoom", function(data) { //tells all users to update their list of rooms requires id, roomName, and password
 		let newRoom = new room(data["id"], data["roomName"], data["password"]);
 		numberToRoomMap[roomCounter] = newRoom;
 		io.sockets.emit("roomCreated", {roomName: data["roomName"], hasPassword: newRoom.hasPassword, roomId: roomCounter}); 
 		roomCounter++;
 	});
-	socket.on("requestToJoinRoom", function(data) {
+	socket.on("requestToJoinRoom", function(data) { //requires roomNumber, userId, password, and oldRoomNumber
 		let roomToJoin = numberToRoomMap[data["roomNumber"]];
 		if(roomToJoin.bannedUsers.includes(data["userId"])){
 			io.sockets.emit("joinedRoom", {success: false, reason: "banned"});
@@ -144,5 +149,32 @@ io.sockets.on("connection", function (socket) {
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
 		socket.to(data["oldRoomNumber"]).emit("usersChanged", {"userIds" : numberToRoomMap[data["oldRoomNumber"]].currentUsers});
 		io.in(data["roomNumber"]).emit("usersChanged", {"userIds": roomToJoin.currentUsers});
+	});
+	socket.on("requestToKickUser", function(data){ //requires room and user
+		if(!hasAdmin(data["room"], socket.id)){
+			return;
+		}
+		io.to(data["user"]).emit("kicked", {});
+	});
+	socket.on("requestToBanUser", function(data){ //requires room and user
+		if(!hasAdmin(data["room"], socket.id)){
+			return;
+		}
+		numberToRoomMap[data["room"]].bannedUsers.push(data["user"]);
+		io.to(data["user"]).emit("kicked", {});
+	});
+	socket.on("requestToAdmin", function(data){ //requires room and user
+		if(!hasAdmin(data["room"], socket.id)){
+			return;
+		}
+		numberToRoomMap[data["room"]].admins.push(data["user"]);
+		io.to(data["user"]).emit("kicked", {});
+	});
+	socket.on("requestToDM", function(data){ //requires user
+		let newRoom = new room(socket.id, "Personal DM", "");
+		numberToRoomMap[dmCounter+dmConstant] = newRoom;
+		socket.emit("forceJoin", {roomNumber: dmCounter+dmConstant});
+		io.to(data["user"]).emit("forceJoin", {roomNUmber: dmCounter+dmConstant});
+		dmCounter++;
 	});
 });
