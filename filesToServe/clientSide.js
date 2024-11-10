@@ -21,6 +21,12 @@ function newSession(){
 	loggedOut();
 }
 
+function kicked(){
+	sessionStorage.setItem("room", 0);
+	clearChat();
+	updateRoomName("the Home Page");
+}
+
 let socketio = io.connect();
 socketio.on("connect", function(socket){
 	newSession();
@@ -52,8 +58,18 @@ socketio.on("usernameRequestReturn", function(data) {
 	}
 });
 
+
+function updateRoomName(newName){
+	document.getElementById("roomName").innerHTML = "Welcome to " + newName + "!";
+}
+
 socketio.on("joinedRoom", function(data){
-	console.log(data);
+	if(!data["success"]){
+		console.log(data["reason"]);
+	}
+	sessionStorage.setItem("room", data["roomNumber"]);
+	updateRoomName(data["roomName"]);
+	clearChat();
 });
 
 socketio.on("roomCreated", function(data) {
@@ -77,7 +93,6 @@ socketio.on("roomCreated", function(data) {
 	newRoomListing.appendChild(newRoomListingJoinButton);
 	listOfRooms.appendChild(newRoomListing);
 	newRoomListingJoinButton.setAttribute("onclick",'joinRoom(this)');
-	newRoomListingJoinButton.addEventListener("click", joinRoom(data["roomId"], newRoomListingInput.value));
 });
 
 function sendMessage(){
@@ -86,7 +101,7 @@ function sendMessage(){
 		return;
 	}
 	document.getElementById("message_input").value = "";
-	socketio.emit("message_to_server", {message:msg, id:socketio.id});
+	socketio.emit("message_to_server", {message:msg, id:socketio.id, roomNumber: sessionStorage.getItem("room")});
 }
 
 function requestUsername(){
@@ -129,10 +144,11 @@ function createRoom(){
 	newRoomName.value = "";
 }
 
-function joinRoom(roomId, passwordAttempt){
-	console.log("Joining room" + roomId);
-	console.log("Password Attempt" + passwordAttempt);
-	socketio.emit("requestToJoinRoom", {roomNumber: roomId, password: passwordAttempt, userId: socketio.id});
+function joinRoom(buttonThatWasClicked){
+	console.log(buttonThatWasClicked.value);
+	passwordAttempt = buttonThatWasClicked.parentNode.childNodes[1].value;
+	console.log(passwordAttempt);
+	socketio.emit("requestToJoinRoom", {roomNumber: buttonThatWasClicked.value, password: passwordAttempt, userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 }
 
 createRoomButton.addEventListener("click", createRoom, false);

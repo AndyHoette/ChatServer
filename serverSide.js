@@ -88,7 +88,9 @@ io.sockets.on("connection", function (socket) {
 		//console.log("message: " + data["message"]); // log it to the Node.JS outpu:
 		//console.log("socketId of user who sent that" + data["id"]);
 		//console.log(idToUsernameMap);
-		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0, pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
+		console.log("Attmepting to send message only to ");
+		console.log(data["roomNumber"]);
+		io.in(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 
 	socket.on('usernameRequest', function (data) {
@@ -100,10 +102,11 @@ io.sockets.on("connection", function (socket) {
 			//console.log(idToUsernameMap);
 			idToUsernameMap[data["id"]] = data["username"];
 			idToPfpMap[data["id"]] = "turtle";
-			io.sockets.emit("usernameRequestReturn", { success: true, username: data["username"]});
+			socket.emit("usernameRequestReturn", { success: true, username: data["username"]});
+			homeRoom.currentUsers.push(socket.id);
 		}else{
 			//console.log("rejecting new username: " + data["username"]);
-			io.sockets.emit("usernameRequestReturn", { success: false}); //io emit equiv socket.to(socketId) socket.to(roomName)
+			socket.emit("usernameRequestReturn", { success: false}); //io emit equiv socket.to(socketId) socket.to(roomName)
 		}
 	});
 	socket.on('updatePFP', function(data) {
@@ -114,7 +117,7 @@ io.sockets.on("connection", function (socket) {
 		for(let i = 1; i<roomCounter; i++){
 			myList[i] = {roomName: numberToRoomMap[i].name, needsPassword: numberToRoomMap[i].hasPassword};
 		}
-		io.sockets.emit("roomsListed", {listOfRooms: myList});
+		socket.emit("roomsListed", {listOfRooms: myList});
 	});
 	socket.on("createRoom", function(data) { //tells all users to update their list of rooms
 		let newRoom = new room(data["id"], data["roomName"], data["password"]);
@@ -124,19 +127,20 @@ io.sockets.on("connection", function (socket) {
 	});
 	socket.on("requestToJoinRoom", function(data) {
 		let roomToJoin = numberToRoomMap[data["roomNumber"]];
-		console.log(roomToJoin);
-		console.log(roomToJoin);
 		if(roomToJoin.bannedUsers.includes(data["userId"])){
-			io.sockets.emit("joinedRoom", {success: false});
+			io.sockets.emit("joinedRoom", {success: false, reason: "banned"});
 			return;
 		}
 		if(roomToJoin.hasPassword){
 			if(roomToJoin.password != data["password"]){
-				io.sockets.emit("joinedRoom", {success: false});
+				io.sockets.emit("joinedRoom", {success: false, reason: "auth fail"});
 				return;
 			}
 		}
 		roomToJoin.currentUsers.push(data["userId"]);
-		io.sockets.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
+		numberToRoomMap[data["oldRoomNumber"]].currentUsers = numberToRoomMap[data["oldRoomNumber"]].currentUsers.filter((item) => item !==socket.id);
+		console.log(homeRoom.currentUsers);
+		socket.join(data["roomNumber"]);
+		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
 	});
 });
