@@ -22,9 +22,7 @@ function newSession(){
 }
 
 function kicked(){
-	sessionStorage.setItem("room", 0);
-	clearChat();
-	updateRoomName("the Home Page");
+	socketio.emit("requestToJoinRoom", {roomNumber: 0, password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 }
 
 let socketio = io.connect();
@@ -70,6 +68,18 @@ socketio.on("joinedRoom", function(data){
 	sessionStorage.setItem("room", data["roomNumber"]);
 	updateRoomName(data["roomName"]);
 	clearChat();
+});
+
+socketio.on("usersChanged", function(data){
+	console.log(data);
+});
+
+socketio.on("kicked", function(data){
+	kicked();
+});
+
+socketio.on("directMessage", function(data){
+	socketio.emit("requestToJoinRoom", {roomNumber: data["roomToJoin"], password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 });
 
 socketio.on("roomCreated", function(data) {

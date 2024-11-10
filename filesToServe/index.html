@@ -14,9 +14,9 @@
             <hr>
             <div id="listOfRooms">
 		    <div class = "roomListing">
-			    <p>Sample Room Title</p>
-			    <input type="text" class="joinRoomPassword"></input>
-			    <button class="joinRoomButton">Join</button>
+			    <p>Home Room</p>
+			    <input type="text" class="joinRoomPassword" style="display: none;">
+			    <button class="joinRoomButton" value=0 onclick="joinRoom(this)">Join</button>
 		    </div>
 	    </div>
             <div id="createRoom">
@@ -50,8 +50,14 @@
                     <option value="bison">Bison</option>
                     <option value="dolphin">Dolphin</option>
                 </select>
-		<img id="userPFP" src="profilePictures/turtle.png" width="80" height="80">
+		<img id="userPFP" src="profilePictures/turtle.png" alt="pfp" width="80" height="80">
             </div>
+	    <div id="actions" style="display: none;">
+		    <button id="kickButton" onclick="requestKick(this)" >Kick</button>
+		    <button id="banButton" onclick="requestBan(this)">Ban</button>
+		    <button id="adminButton" onclick="requestAdmin(this)">Admin</button>
+		    <button id="dmButton" onclick="requestDM(this)">DM</button>
+	    </div>
         </div>
     </div>
     <script src="clientSide.js"></script>

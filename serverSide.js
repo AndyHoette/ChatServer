@@ -139,8 +139,10 @@ io.sockets.on("connection", function (socket) {
 		}
 		roomToJoin.currentUsers.push(data["userId"]);
 		numberToRoomMap[data["oldRoomNumber"]].currentUsers = numberToRoomMap[data["oldRoomNumber"]].currentUsers.filter((item) => item !==socket.id);
-		console.log(homeRoom.currentUsers);
+		//console.log(homeRoom.currentUsers);
 		socket.join(data["roomNumber"]);
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
+		socket.to(data["oldRoomNumber"]).emit("usersChanged", {"userIds" : numberToRoomMap[data["oldRoomNumber"]].currentUsers});
+		io.in(data["roomNumber"]).emit("usersChanged", {"userIds": roomToJoin.currentUsers});
 	});
 });
