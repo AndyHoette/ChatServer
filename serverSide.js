@@ -143,10 +143,14 @@ io.sockets.on("connection", function (socket) {
 				return;
 			}
 		}
+		console.log(data["userId"]);
+		console.log(roomToJoin.currentUsers);
 		roomToJoin.currentUsers.push(data["userId"]);
+		console.log(roomToJoin.currentUsers);
 		numberToRoomMap[data["oldRoomNumber"]].currentUsers = numberToRoomMap[data["oldRoomNumber"]].currentUsers.filter((item) => item !==socket.id);
 		//console.log(homeRoom.currentUsers);
 		socket.join(data["roomNumber"]);
+		socket.leave(data["oldRoomNumber"]);
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
 		socket.to(data["oldRoomNumber"]).emit("clearUsers", {});
 		for(let i = 0; i<roomToLeave.currentUsers.length; i++){
@@ -154,7 +158,11 @@ io.sockets.on("connection", function (socket) {
 		}
 		io.in(data["roomNumber"]).emit("clearUsers", {});
 		for(let i = 0; i<roomToJoin.currentUsers.length; i++){
-			io.in(data["roomNumber"]).emit("addUser", {"userId": roomToJoin.currentUsers[i], "username": idToUsernameMap[roomToLeave.currentUsers[i]]});
+			io.to(data["roomNumber"]).emit("addUser", {
+				"username": idToUsernameMap[roomToJoin.currentUsers[i]],
+				"type": "addUser",
+				"userId": roomToJoin.currentUsers[i]
+			});
 		}
 		//socket.to(data["oldRoomNumber"]).emit("usersChanged", {"userIds" : numberToRoomMap[data["oldRoomNumber"]].currentUsers});
 		//io.in(data["roomNumber"]).emit("usersChanged", {"userIds": roomToJoin.currentUsers});

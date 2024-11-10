@@ -10,6 +10,12 @@ let createRoomButton = document.getElementById("createRoomButton");
 let newRoomPassword = document.getElementById("newRoomPassword");
 let newRoomName = document.getElementById("newRoomName");
 let listOfRooms = document.getElementById("listOfRooms");
+let actionBar = document.getElementById("actions");
+let listOfUsers = document.getElementById("listOfUsers");
+let kickButton = document.getElementById("kickButton");
+let banButton = document.getElementById("banButton");
+let adminButton = document.getElementById("adminButton");
+let dmButton = document.getElementById("dmButton");
 
 function clearChat(){
 	chatLog.innerHTML = "";
@@ -111,6 +117,29 @@ socketio.on("roomCreated", function(data) {
 	listOfRooms.appendChild(newRoomListing);
 	newRoomListingJoinButton.setAttribute("onclick",'joinRoom(this)');
 });
+
+socketio.on("clearUsers", function(data){
+	listOfUsers.innerHTML = "";
+	actionBar.style.display = "none";
+});
+
+socketio.on("addUser", function(data){
+	console.log(data);
+	let myButton = document.createElement("button");
+	myButton.innerHTML = data["username"];
+	myButton.value = data["userId"];
+	document.addEventListener("click", setUpAction(data["userId"], data["username"]));
+	listOfUsers.appendChild(myButton);
+});
+
+function setUpAction(idAffected, username){
+	actionBar.style.display="block";
+	document.getElementById("affectedUser").innerHTML(username);
+	kickButton.value = idAffected;
+	banButton.value = idAffected;
+	adminButton.value = idAffected;
+	dmButton.value = idAffected;
+}
 
 function sendMessage(){
 	let msg = document.getElementById("message_input").value;
