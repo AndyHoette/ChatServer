@@ -161,6 +161,27 @@ function joinRoom(buttonThatWasClicked){
 	socketio.emit("requestToJoinRoom", {roomNumber: buttonThatWasClicked.value, password: passwordAttempt, userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 }
 
+
+function requestKick(buttonThatWasClicked){
+	userToKick = buttonThatWasClicked.value;
+	socketio.emit("requestToKickUser", {"user": userToKick});
+}
+
+function requestBan(buttonThatWasClicked){
+	userToBan = buttonThatWasClicked.value;
+	socketio.emit("requestToBanUser", {"user": userToBan});
+}
+
+function requestAdmin(buttonThatWasClicked){
+	userToAdmin = buttonThatWasClicked.value;
+	socketio.emit("requestToAdminUser", {"user": userToAdmin});
+}
+
+function requestDM(buttonThatWasClicked){
+	userToDM = buttonThatWasClicked.value;
+	socketio.emit("requestToDM", {"user", userToDM});
+}
+
 createRoomButton.addEventListener("click", createRoom, false);
 pfpSelector.addEventListener("change", updatePFP, false);
 logOutButton.addEventListener("click", loggedOut, false);
