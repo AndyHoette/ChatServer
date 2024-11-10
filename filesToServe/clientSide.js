@@ -9,6 +9,7 @@ let sendMessageButton = document.getElementById("sendMessageButton");
 let createRoomButton = document.getElementById("createRoomButton");
 let newRoomPassword = document.getElementById("newRoomPassword");
 let newRoomName = document.getElementById("newRoomName");
+let listOfRooms = document.getElementById("listOfRooms");
 
 function clearChat(){
 	chatLog.innerHTML = "";
@@ -26,7 +27,7 @@ socketio.on("connect", function(socket){
 });
 socketio.on("message_to_client",function(data) {
 	//Append an HR thematic break and the escaped HTML of the new message
-	if(!data["success"] || data["room"] != sessionStorage.getItem("room")){
+	if(!data["success"]){
 		return;
 	}
 	let newMessage = document.createElement("div");
@@ -51,10 +52,32 @@ socketio.on("usernameRequestReturn", function(data) {
 	}
 });
 
+socketio.on("joinedRoom", function(data){
+	console.log(data);
+});
+
 socketio.on("roomCreated", function(data) {
 	console.log("Create room with name: " + data["roomName"] + ". Needs Password? " + data["hasPassword"]);
-	newRoomPassword.value = "";
-	newRoomName.value = "";
+	let newRoomListing = document.createElement("div");
+	newRoomListing.classList.add("roomListing");
+	let newRoomListingTitle = document.createElement("p");
+	newRoomListingTitle.innerHTML = data["roomName"];
+	newRoomListing.appendChild(newRoomListingTitle);
+	let newRoomListingInput = document.createElement("input");
+	newRoomListingInput.type = "text";
+	newRoomListingInput.classList.add("joinRoomPassword");
+	if(!data["hasPassword"]){
+		newRoomListingInput.style.display = "none";
+	}
+	newRoomListing.appendChild(newRoomListingInput);
+	let newRoomListingJoinButton = document.createElement("button");
+	newRoomListingJoinButton.classList.add("joinRoomButton");
+	newRoomListingJoinButton.innerHTML = "Join";
+	newRoomListingJoinButton.value = data["roomId"];
+	newRoomListing.appendChild(newRoomListingJoinButton);
+	listOfRooms.appendChild(newRoomListing);
+	newRoomListingJoinButton.setAttribute("onclick",'joinRoom(this)');
+	newRoomListingJoinButton.addEventListener("click", joinRoom(data["roomId"], newRoomListingInput.value));
 });
 
 function sendMessage(){
@@ -99,7 +122,17 @@ function updatePFP(){
 }
 
 function createRoom(){
+	console.log("Creating Room ");
+	console.log(newRoomName.value);
 	socketio.emit("createRoom", {id: socketio.id, roomName: newRoomName.value, password: newRoomPassword.value}); 
+	newRoomPassword.value = "";
+	newRoomName.value = "";
+}
+
+function joinRoom(roomId, passwordAttempt){
+	console.log("Joining room" + roomId);
+	console.log("Password Attempt" + passwordAttempt);
+	socketio.emit("requestToJoinRoom", {roomNumber: roomId, password: passwordAttempt, userId: socketio.id});
 }
 
 createRoomButton.addEventListener("click", createRoom, false);

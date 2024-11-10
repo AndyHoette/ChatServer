@@ -68,7 +68,7 @@ const socketio = require("socket.io")(http, {
 });
 let numberToRoomMap = {};
 let roomCounter = 0;
-let homeRoom = new room("", "the Home Page" ,"");
+let homeRoom = new room("", "Home Page" ,"");
 numberToRoomMap[roomCounter] = homeRoom;
 roomCounter++;
 let idToUsernameMap = {};
@@ -77,32 +77,33 @@ let idToPfpMap = {};
 const io = socketio.listen(server);
 io.sockets.on("connection", function (socket) {
 	// This callback runs when a new Socket.IO connection is established.
-	console.log(roomCounter);
+	//console.log(roomCounter);
+	socket.join("0");
 	socket.on('message_to_server', function (data) {
 		// This callback runs when the server receives a new message from the client.
 		if(!idToUsernameMap.hasOwnProperty(data["id"])){
 			io.sockets.emit("message_to_client", {success: false});
 			return;
 		}
-		console.log("message: " + data["message"]); // log it to the Node.JS outpu:
-		console.log("socketId of user who sent that" + data["id"]);
-		console.log(idToUsernameMap);
+		//console.log("message: " + data["message"]); // log it to the Node.JS outpu:
+		//console.log("socketId of user who sent that" + data["id"]);
+		//console.log(idToUsernameMap);
 		io.sockets.emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], room: 0, pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 
 	socket.on('usernameRequest', function (data) {
 		// This callback runs when the serve recieves a new username request
-		console.log(idToUsernameMap);
-		console.log(Object.values(idToUsernameMap));
+		//console.log(idToUsernameMap);
+		//console.log(Object.values(idToUsernameMap));
 		if(!Object.values(idToUsernameMap).includes(data["username"])){
-			console.log("accepting new username: " + data["username"] + ". For user id: " + data["id"]);
-			console.log(idToUsernameMap);
+			//console.log("accepting new username: " + data["username"] + ". For user id: " + data["id"]);
+			//console.log(idToUsernameMap);
 			idToUsernameMap[data["id"]] = data["username"];
 			idToPfpMap[data["id"]] = "turtle";
 			io.sockets.emit("usernameRequestReturn", { success: true, username: data["username"]});
 		}else{
-			console.log("rejecting new username: " + data["username"]);
-			io.sockets.emit("usernameRequestReturn", { success: false});
+			//console.log("rejecting new username: " + data["username"]);
+			io.sockets.emit("usernameRequestReturn", { success: false}); //io emit equiv socket.to(socketId) socket.to(roomName)
 		}
 	});
 	socket.on('updatePFP', function(data) {
@@ -118,11 +119,13 @@ io.sockets.on("connection", function (socket) {
 	socket.on("createRoom", function(data) { //tells all users to update their list of rooms
 		let newRoom = new room(data["id"], data["roomName"], data["password"]);
 		numberToRoomMap[roomCounter] = newRoom;
-		io.sockets.emit("roomCreated", {roomName: data["roomName"], hasPassword: newRoom.hasPassword}); 
+		io.sockets.emit("roomCreated", {roomName: data["roomName"], hasPassword: newRoom.hasPassword, roomId: roomCounter}); 
 		roomCounter++;
 	});
 	socket.on("requestToJoinRoom", function(data) {
 		let roomToJoin = numberToRoomMap[data["roomNumber"]];
+		console.log(roomToJoin);
+		console.log(roomToJoin);
 		if(roomToJoin.bannedUsers.includes(data["userId"])){
 			io.sockets.emit("joinedRoom", {success: false});
 			return;
