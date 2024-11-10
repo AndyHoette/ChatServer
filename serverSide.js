@@ -118,11 +118,11 @@ io.sockets.on("connection", function (socket) {
 		idToPfpMap[data["id"]] = data["pfp"];
 	});
 	socket.on("listRooms", function(data) { //meant to be used when a user first logs in to get them caught up to speed requires nothing
-		let myList = [];
+		console.log("i have " + roomCounter + " rooms to show");
 		for(let i = 1; i<roomCounter; i++){
-			myList[i] = {roomName: numberToRoomMap[i].name, needsPassword: numberToRoomMap[i].hasPassword};
+			console.log("trying to emit " + i);
+			socket.emit("roomCreated", {roomName: numberToRoomMap[i].name, needsPassword: numberToRoomMap[i].hasPassword, roomId: i});
 		}
-		socket.emit("roomsListed", {listOfRooms: myList});
 	});
 	socket.on("createRoom", function(data) { //tells all users to update their list of rooms requires id, roomName, and password
 		let newRoom = new room(data["id"], data["roomName"], data["password"]);
@@ -131,6 +131,7 @@ io.sockets.on("connection", function (socket) {
 		roomCounter++;
 	});
 	socket.on("requestToJoinRoom", function(data) { //requires roomNumber, userId, password, and oldRoomNumber
+		let roomToLeave = numberToRoomMap[data["oldRoomNumber"]];
 		let roomToJoin = numberToRoomMap[data["roomNumber"]];
 		if(roomToJoin.bannedUsers.includes(data["userId"])){
 			io.sockets.emit("joinedRoom", {success: false, reason: "banned"});
@@ -147,8 +148,16 @@ io.sockets.on("connection", function (socket) {
 		//console.log(homeRoom.currentUsers);
 		socket.join(data["roomNumber"]);
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
-		socket.to(data["oldRoomNumber"]).emit("usersChanged", {"userIds" : numberToRoomMap[data["oldRoomNumber"]].currentUsers});
-		io.in(data["roomNumber"]).emit("usersChanged", {"userIds": roomToJoin.currentUsers});
+		socket.to(data["oldRoomNumber"]).emit("clearUsers", {});
+		for(let i = 0; i<roomToLeave.currentUsers.length; i++){
+			socket.to(data["oldRoomNumber"]).emit("addUser", {"userId": roomToLeave.currentUsers[i], "username": idToUsernameMap[roomToLeave.currentUsers[i]]});
+		}
+		io.in(data["roomNumber"]).emit("clearUsers", {});
+		for(let i = 0; i<roomToJoin.currentUsers.length; i++){
+			io.in(data["roomNumber"]).emit("addUser", {"userId": roomToJoin.currentUsers[i], "username": idToUsernameMap[roomToLeave.currentUsers[i]]});
+		}
+		//socket.to(data["oldRoomNumber"]).emit("usersChanged", {"userIds" : numberToRoomMap[data["oldRoomNumber"]].currentUsers});
+		//io.in(data["roomNumber"]).emit("usersChanged", {"userIds": roomToJoin.currentUsers});
 	});
 	socket.on("requestToKickUser", function(data){ //requires room and user
 		if(!hasAdmin(data["room"], socket.id)){

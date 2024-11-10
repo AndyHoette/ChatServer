@@ -28,7 +28,14 @@ function kicked(){
 let socketio = io.connect();
 socketio.on("connect", function(socket){
 	newSession();
+	console.log("requesting all rooms");
+	socketio.emit("listRooms", {});
 });
+
+socketio.on("roomListed", function(data){
+	console.log(data);
+});
+
 socketio.on("message_to_client",function(data) {
 	//Append an HR thematic break and the escaped HTML of the new message
 	if(!data["success"]){
