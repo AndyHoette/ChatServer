@@ -29,6 +29,7 @@ function newSession(){
 
 function kicked(){
 	socketio.emit("requestToJoinRoom", {roomNumber: 0, password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
+	listOfUsers.innerHTML = "";
 }
 
 let socketio = io.connect();
@@ -128,13 +129,13 @@ socketio.on("addUser", function(data){
 	let myButton = document.createElement("button");
 	myButton.innerHTML = data["username"];
 	myButton.value = data["userId"];
-	document.addEventListener("click", setUpAction(data["userId"], data["username"]));
+	document.addEventListener("click", () => setUpAction(data["userId"], data["username"]), false);
 	listOfUsers.appendChild(myButton);
 });
 
 function setUpAction(idAffected, username){
 	actionBar.style.display="block";
-	document.getElementById("affectedUser").innerHTML(username);
+	document.getElementById("affectedUser").innerHTML = username;
 	kickButton.value = idAffected;
 	banButton.value = idAffected;
 	adminButton.value = idAffected;
@@ -163,6 +164,7 @@ function loggedIn(){
 	document.getElementById("afterLogIn").style.display = "block";
 	inputField.style.display = "block";
 	document.getElementById("createRoom").style.display = "block";
+	socketio.emit("requestToJoinRoom", {roomNumber: 0, password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 }
 
 function loggedOut(){
@@ -175,6 +177,7 @@ function loggedOut(){
 	document.getElementById("newRoomPassword").value = "";
 	document.getElementById("createRoom").style.display = "none";
 	clearChat();
+	kicked();
 }
 
 function updatePFP(){

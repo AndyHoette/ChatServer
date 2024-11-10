@@ -143,10 +143,7 @@ io.sockets.on("connection", function (socket) {
 				return;
 			}
 		}
-		console.log(data["userId"]);
-		console.log(roomToJoin.currentUsers);
 		roomToJoin.currentUsers.push(data["userId"]);
-		console.log(roomToJoin.currentUsers);
 		numberToRoomMap[data["oldRoomNumber"]].currentUsers = numberToRoomMap[data["oldRoomNumber"]].currentUsers.filter((item) => item !==socket.id);
 		//console.log(homeRoom.currentUsers);
 		socket.join(data["roomNumber"]);
