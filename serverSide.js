@@ -96,6 +96,9 @@ io.sockets.on("connection", function (socket) {
 		//console.log(idToUsernameMap);
 		console.log("Attmepting to send message only to ");
 		console.log(data["roomNumber"]);
+		console.log(socket.rooms.has(data["roomNumber"]));
+		console.log(socket.rooms.has(0));
+		console.log(socket.rooms.has("0"));
 		console.log(socket.id + " is in room " + [...socket.rooms]);
 		io.to(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
