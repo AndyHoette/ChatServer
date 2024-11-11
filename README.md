@@ -4,8 +4,11 @@ Andy Hoette 518194 AndyHoette
 
 Joshua Lee 518325 joshlee1112
 
+Design Choices:
+  Users in the current room are listed at the top of the chat in buttons
+
 Creative Portion
 
--The user has the option to choose between a list of profile pictures
+-The user has the option to choose between a list of profile pictures that are based on the google anonymous animals
 
--There is an admin button where you can give admin privileges to a different user. 
+-There is an admin button where you can give admin privileges to a different user such as kicking banning, and making other admins.
