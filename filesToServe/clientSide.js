@@ -56,6 +56,7 @@ socketio.on("message_to_client",function(data) {
 	pfpForMessage.width = "30";
 	pfpForMessage.height = "30";
 	pfpForMessage.src = "profilePictures/" + data["pfp"] + ".png";
+	pfpForMessage.alt = "pfp";
 	newMessage.appendChild(pfpForMessage);
 	newMessage.appendChild(document.createTextNode(data["username"] + ": " + data["message"]));
 	document.getElementById("chatlog").appendChild(newMessage);
@@ -135,6 +136,10 @@ socketio.on("addUser", function(data){
 	myButton.value = data["userId"];
 	myButton.setAttribute("onclick", "setUpAction(this)");
 	listOfUsers.appendChild(myButton);
+});
+
+socketio.on("forceJoin", function(data){
+	socketio.emit("requestToJoinRoom", {roomNumber: data["roomNumber"], password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 });
 
 function setUpAction(buttonThatWasPressed){
