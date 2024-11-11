@@ -83,6 +83,7 @@ const io = socketio.listen(server);
 io.sockets.on("connection", function (socket) {
 	// This callback runs when a new Socket.IO connection is established.
 	//console.log(roomCounter);
+	console.log("Sending " + socket.id + " to room 0");
 	socket.join("0");
 	socket.on('message_to_server', function (data) { //requires id roomNumber and message
 		// This callback runs when the server receives a new message from the client.
@@ -95,7 +96,8 @@ io.sockets.on("connection", function (socket) {
 		//console.log(idToUsernameMap);
 		console.log("Attmepting to send message only to ");
 		console.log(data["roomNumber"]);
-		io.in(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
+		console.log(socket.id + " is in room " + [...socket.rooms]);
+		io.to(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 
 	socket.on('usernameRequest', function (data) { //requires id and username
@@ -134,20 +136,22 @@ io.sockets.on("connection", function (socket) {
 		let roomToLeave = numberToRoomMap[data["oldRoomNumber"]];
 		let roomToJoin = numberToRoomMap[data["roomNumber"]];
 		if(roomToJoin.bannedUsers.includes(data["userId"])){
-			io.sockets.emit("joinedRoom", {success: false, reason: "banned"});
+			socket.emit("joinedRoom", {success: false, reason: "banned"});
 			return;
 		}
 		if(roomToJoin.hasPassword){
 			if(roomToJoin.password != data["password"]){
-				io.sockets.emit("joinedRoom", {success: false, reason: "auth fail"});
+				socket.emit("joinedRoom", {success: false, reason: "auth fail"});
 				return;
 			}
 		}
 		roomToJoin.currentUsers.push(data["userId"]);
 		numberToRoomMap[data["oldRoomNumber"]].currentUsers = numberToRoomMap[data["oldRoomNumber"]].currentUsers.filter((item) => item !==socket.id);
 		//console.log(homeRoom.currentUsers);
-		socket.join(data["roomNumber"]);
+		console.log("having " + socket.id + " leave room " + data["oldRoomNumber"]);
 		socket.leave(data["oldRoomNumber"]);
+		console.log("having " + socket.id + " join room " + data["roomNumber"]);
+		socket.join(data["roomNumber"]);
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
 		socket.to(data["oldRoomNumber"]).emit("clearUsers", {});
 		for(let i = 0; i<roomToLeave.currentUsers.length; i++){

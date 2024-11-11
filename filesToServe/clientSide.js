@@ -45,6 +45,8 @@ socketio.on("roomListed", function(data){
 
 socketio.on("message_to_client",function(data) {
 	//Append an HR thematic break and the escaped HTML of the new message
+	console.log("recieved a message");
+	console.log(data);
 	if(!data["success"]){
 		return;
 	}
@@ -78,7 +80,9 @@ function updateRoomName(newName){
 socketio.on("joinedRoom", function(data){
 	if(!data["success"]){
 		console.log(data["reason"]);
+		return;
 	}
+	console.log("join another room");
 	sessionStorage.setItem("room", data["roomNumber"]);
 	updateRoomName(data["roomName"]);
 	clearChat();
@@ -129,13 +133,14 @@ socketio.on("addUser", function(data){
 	let myButton = document.createElement("button");
 	myButton.innerHTML = data["username"];
 	myButton.value = data["userId"];
-	document.addEventListener("click", () => setUpAction(data["userId"], data["username"]), false);
+	myButton.setAttribute("onclick", "setUpAction(this)");
 	listOfUsers.appendChild(myButton);
 });
 
-function setUpAction(idAffected, username){
+function setUpAction(buttonThatWasPressed){
 	actionBar.style.display="block";
-	document.getElementById("affectedUser").innerHTML = username;
+	document.getElementById("affectedUser").innerHTML = buttonThatWasPressed.innerHTML;
+	idAffected = buttonThatWasPressed.value;
 	kickButton.value = idAffected;
 	banButton.value = idAffected;
 	adminButton.value = idAffected;
