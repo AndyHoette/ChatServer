@@ -76,6 +76,7 @@ roomCounter++;
 let idToUsernameMap = {};
 let idToPfpMap = {};
 function hasAdmin(room, userId){
+	console.log(numberToRoomMap[room].admins);
 	return numberToRoomMap[room].admins.includes(userId);
 }
 // Attach our Socket.IO server to our HTTP server to listen
@@ -84,7 +85,7 @@ io.sockets.on("connection", function (socket) {
 	// This callback runs when a new Socket.IO connection is established.
 	//console.log(roomCounter);
 	console.log("Sending " + socket.id + " to room 0");
-	socket.join("0");
+	socket.join(0);
 	socket.on('message_to_server', function (data) { //requires id roomNumber and message
 		// This callback runs when the server receives a new message from the client.
 		if(!idToUsernameMap.hasOwnProperty(data["id"])){
@@ -94,13 +95,13 @@ io.sockets.on("connection", function (socket) {
 		//console.log("message: " + data["message"]); // log it to the Node.JS outpu:
 		//console.log("socketId of user who sent that" + data["id"]);
 		//console.log(idToUsernameMap);
-		console.log("Attmepting to send message only to ");
-		console.log(data["roomNumber"]);
+		console.log("Attmepting to send message only to " + data["roomNumber"]);
 		console.log(socket.rooms.has(data["roomNumber"]));
 		console.log(socket.rooms.has(0));
 		console.log(socket.rooms.has("0"));
 		console.log(socket.id + " is in room " + [...socket.rooms]);
-		io.to(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
+		io.in(data["roomNumber"]).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
+		io.in(Number(data["roomNumber"])).emit("message_to_client", { success: true, message: data["message"], username: idToUsernameMap[data["id"]], pfp: idToPfpMap[data["id"]] }) // broadcast the message to other users
 	});
 
 	socket.on('usernameRequest', function (data) { //requires id and username
@@ -153,6 +154,7 @@ io.sockets.on("connection", function (socket) {
 		//console.log(homeRoom.currentUsers);
 		console.log("having " + socket.id + " leave room " + data["oldRoomNumber"]);
 		socket.leave(data["oldRoomNumber"]);
+		socket.leave(Number(data["oldRoomNumber"]));
 		console.log("having " + socket.id + " join room " + data["roomNumber"]);
 		socket.join(data["roomNumber"]);
 		socket.emit("joinedRoom", {success: true, roomNumber: data["roomNumber"], roomName: roomToJoin.name});	
@@ -184,7 +186,8 @@ io.sockets.on("connection", function (socket) {
 		numberToRoomMap[data["room"]].bannedUsers.push(data["user"]);
 		io.to(data["user"]).emit("kicked", {});
 	});
-	socket.on("requestToAdmin", function(data){ //requires room and user
+	socket.on("requestToAdminUser", function(data){ //requires room and user
+		console.log("requesting admin");
 		if(!hasAdmin(data["room"], socket.id)){
 			return;
 		}

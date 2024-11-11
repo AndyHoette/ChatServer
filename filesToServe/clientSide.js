@@ -28,7 +28,7 @@ function newSession(){
 }
 
 function kicked(){
-	socketio.emit("requestToJoinRoom", {roomNumber: 0, password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
+	socketio.emit("requestToJoinRoom", {roomNumber: "0", password: "", userId: socketio.id, oldRoomNumber: sessionStorage.getItem("room")});
 	listOfUsers.innerHTML = "";
 }
 
@@ -218,6 +218,7 @@ function requestBan(buttonThatWasClicked){
 
 function requestAdmin(buttonThatWasClicked){
 	userToAdmin = buttonThatWasClicked.value;
+	console.log("requestingAdmin");
 	socketio.emit("requestToAdminUser", {"user": userToAdmin, "room":sessionStorage.getItem("room")});
 }
 
